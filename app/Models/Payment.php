@@ -12,6 +12,8 @@ class Payment extends Model
 
     protected $fillable = [
         'booking_id',
+        'amount',
+        'payment_method',
         'proof_image_path',
         'payment_status',
         'verified_by',
@@ -20,6 +22,7 @@ class Payment extends Model
     ];
 
     protected $casts = [
+        'amount' => 'decimal:2',
         'verified_at' => 'datetime',
     ];
 
@@ -32,5 +35,14 @@ class Payment extends Model
     {
         return $this->belongsTo(User::class, 'verified_by');
     }
-}
 
+    public function getStatusLabelAttribute(): string
+    {
+        return match ($this->payment_status) {
+            'pending' => 'Menunggu Verifikasi',
+            'verified' => 'Terverifikasi (Lunas)',
+            'rejected' => 'Ditolak',
+            default => ucfirst($this->payment_status),
+        };
+    }
+}

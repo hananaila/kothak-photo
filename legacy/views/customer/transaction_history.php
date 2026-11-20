@@ -6,7 +6,7 @@ declare(strict_types=1);
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__.'/../../config/database.php';
 
 $pdo = Database::getConnection();
 $userId = (int) ($_SESSION['user']['id'] ?? 1);
@@ -60,7 +60,7 @@ $transactions = $stmtHistory->fetchAll();
           </tr>
         </thead>
         <tbody class="divide-y-2 divide-slate-900">
-          <?php foreach ($transactions as $trx): ?>
+          <?php foreach ($transactions as $trx) { ?>
             <tr>
               <td class="py-3 px-4 font-mono font-black text-blue-700"><?= htmlspecialchars($trx['queue_number']) ?></td>
               <td class="py-3 px-4 font-bold"><?= htmlspecialchars($trx['package_name']) ?></td>
@@ -72,7 +72,7 @@ $transactions = $stmtHistory->fetchAll();
               <td class="py-3 px-4 font-mono font-bold"><?= htmlspecialchars($trx['payment_status']) ?></td>
               <td class="py-3 px-4 font-bold uppercase"><?= htmlspecialchars($trx['booking_status']) ?></td>
             </tr>
-          <?php endforeach; ?>
+          <?php } ?>
         </tbody>
       </table>
     </div>

@@ -6,12 +6,12 @@ declare(strict_types=1);
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__.'/../../config/database.php';
 
 $pdo = Database::getConnection();
 $today = date('Y-m-d');
 
-$stmtPayments = $pdo->query("
+$stmtPayments = $pdo->query('
     SELECT 
         b.id AS booking_id,
         b.queue_number,
@@ -31,7 +31,7 @@ $stmtPayments = $pdo->query("
     INNER JOIN packages pkg ON b.package_id = pkg.id
     INNER JOIN schedules sch ON b.schedule_id = sch.id
     ORDER BY pay.created_at DESC
-");
+');
 $paymentList = $stmtPayments->fetchAll();
 
 $stmtToday = $pdo->prepare("
@@ -88,7 +88,7 @@ $todayBookings = $stmtToday->fetchAll();
           </tr>
         </thead>
         <tbody class="divide-y-2 divide-slate-900">
-          <?php foreach ($paymentList as $row): ?>
+          <?php foreach ($paymentList as $row) { ?>
             <tr>
               <td class="p-3 font-mono font-black text-blue-700"><?= htmlspecialchars($row['queue_number']) ?></td>
               <td class="p-3 font-bold"><?= htmlspecialchars($row['customer_name']) ?></td>
@@ -110,7 +110,7 @@ $todayBookings = $stmtToday->fetchAll();
                 </form>
               </td>
             </tr>
-          <?php endforeach; ?>
+          <?php } ?>
         </tbody>
       </table>
     </section>
@@ -130,7 +130,7 @@ $todayBookings = $stmtToday->fetchAll();
           </tr>
         </thead>
         <tbody class="divide-y-2 divide-slate-900">
-          <?php foreach ($todayBookings as $item): ?>
+          <?php foreach ($todayBookings as $item) { ?>
             <tr>
               <td class="p-3 font-mono font-black text-blue-700"><?= htmlspecialchars($item['queue_number']) ?></td>
               <td class="p-3 font-bold"><?= htmlspecialchars($item['customer_name']) ?></td>
@@ -145,7 +145,7 @@ $todayBookings = $stmtToday->fetchAll();
                 </form>
               </td>
             </tr>
-          <?php endforeach; ?>
+          <?php } ?>
         </tbody>
       </table>
     </section>

@@ -23,20 +23,34 @@ class AuthController extends Controller
             'password' => ['required'],
         ]);
 
-        if (Auth::attempt($credentials, $request->boolean('remember'))) {
-            $request->session()->regenerate();
-            $user = Auth::user();
+        $user = User::where('email', strtolower($credentials['email']))->first();
 
-            if ($user->role === 'cashier' || $user->role === 'admin') {
-                return redirect()->intended(route('cashier.dashboard'))->with('success', 'Selamat datang, ' . $user->name . '!');
-            }
-
-            return redirect()->intended(route('packages.index'))->with('success', 'Selamat datang kembali, ' . $user->name . '!');
+        if (! $user || ! Hash::check($credentials['password'], $user->password)) {
+            return back()->withErrors([
+                'email' => 'Email atau kata sandi yang Anda masukkan salah.',
+            ])->onlyInput('email');
         }
 
-        return back()->withErrors([
-            'email' => 'Email atau kata sandi tidak sesuai.',
-        ])->onlyInput('email');
+        // FR-01: Check active status
+        if (! $user->is_active) {
+            return back()->withErrors([
+                'email' => 'Akun Anda dinonaktifkan oleh administrator studio. Silakan hubungi kasir atau admin.',
+            ])->onlyInput('email');
+        }
+
+        Auth::login($user, $request->boolean('remember'));
+        $request->session()->regenerate();
+
+        // Redirect based on role
+        if ($user->role === 'admin') {
+            return redirect()->intended(route('admin.dashboard'))->with('success', 'Selamat datang Admin KOTHaK Photo Studio!');
+        }
+
+        if ($user->role === 'cashier') {
+            return redirect()->intended(route('cashier.dashboard'))->with('success', 'Selamat bertugas, Kasir '.$user->name.'!');
+        }
+
+        return redirect()->intended(route('packages.index'))->with('success', 'Selamat datang kembali di KOTHaK Photo, '.$user->name.'!');
     }
 
     public function quickLogin(string $role): RedirectResponse
@@ -51,17 +65,25 @@ class AuthController extends Controller
         $user = User::where('email', $email)->first();
 
         if ($user) {
+            if (! $user->is_active) {
+                $user->update(['is_active' => true]);
+            }
+
             Auth::login($user);
             request()->session()->regenerate();
 
-            if ($user->isCashier()) {
-                return redirect()->route('cashier.dashboard')->with('success', 'Beralih ke sesi: ' . $user->name . ' (' . ucfirst($user->role) . ')');
+            if ($user->role === 'admin') {
+                return redirect()->route('admin.dashboard')->with('success', 'Beralih ke sesi Admin Studio: '.$user->name);
             }
 
-            return redirect()->route('packages.index')->with('success', 'Beralih ke sesi: ' . $user->name . ' (' . ucfirst($user->role) . ')');
+            if ($user->role === 'cashier') {
+                return redirect()->route('cashier.dashboard')->with('success', 'Beralih ke sesi Kasir / Operator: '.$user->name);
+            }
+
+            return redirect()->route('packages.index')->with('success', 'Beralih ke sesi Pelanggan: '.$user->name);
         }
 
-        return redirect()->route('login')->with('error', 'Pengguna demo tidak ditemukan.');
+        return redirect()->route('login')->with('error', 'Akun demo peran '.$role.' tidak ditemukan.');
     }
 
     public function showRegister(): View
@@ -84,12 +106,13 @@ class AuthController extends Controller
             'phone_whatsapp' => $validated['phone_whatsapp'],
             'password' => Hash::make($validated['password']),
             'role' => 'customer',
+            'is_active' => true,
         ]);
 
         Auth::login($user);
         $request->session()->regenerate();
 
-        return redirect()->route('packages.index')->with('success', 'Registrasi berhasil! Selamat datang di KOTHaK Photo.');
+        return redirect()->route('packages.index')->with('success', 'Pendaftaran akun berhasil! Selamat datang di KOTHaK Photo Purbalingga.');
     }
 
     public function logout(Request $request): RedirectResponse
@@ -98,7 +121,6 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('packages.index')->with('success', 'Anda telah berhasil keluar (logout).');
+        return redirect()->route('packages.index')->with('success', 'Anda telah berhasil keluar dari akun.');
     }
 }
-

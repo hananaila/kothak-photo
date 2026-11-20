@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Database\Factories\UserFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -19,6 +20,7 @@ class User extends Authenticatable
         'phone_whatsapp',
         'password',
         'role',
+        'is_active',
     ];
 
     protected $hidden = [
@@ -31,6 +33,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_active' => 'boolean',
         ];
     }
 
@@ -44,6 +47,11 @@ class User extends Authenticatable
         return $this->hasMany(Payment::class, 'verified_by');
     }
 
+    public function isCustomer(): bool
+    {
+        return $this->role === 'customer';
+    }
+
     public function isCashier(): bool
     {
         return in_array($this->role, ['cashier', 'admin'], true);
@@ -52,5 +60,10 @@ class User extends Authenticatable
     public function isAdmin(): bool
     {
         return $this->role === 'admin';
+    }
+
+    public function scopeActive(Builder $query): Builder
+    {
+        return $query->where('is_active', true);
     }
 }

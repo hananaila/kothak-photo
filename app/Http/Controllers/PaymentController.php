@@ -7,6 +7,7 @@ use App\Models\Payment;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
@@ -14,30 +15,40 @@ class PaymentController extends Controller
 {
     public function checkout(Booking $booking): View
     {
-        $booking->load(['package', 'schedule', 'user', 'payment']);
+        $this->authorizeBookingAccess($booking);
+        $booking->load(['package', 'schedule', 'user', 'payment', 'bookingAddOns.addOn']);
 
         return view('customer.checkout_payment', compact('booking'));
     }
 
     public function uploadProof(Request $request, Booking $booking): RedirectResponse
     {
+        $this->authorizeBookingAccess($booking);
+
         $request->validate([
             'proof_image' => ['required', 'image', 'mimes:jpeg,png,jpg,webp', 'max:5120'], // Max 5MB
         ]);
 
         $file = $request->file('proof_image');
         $fileName = sprintf('qris_booking_%d_%d.%s', $booking->id, time(), $file->getClientOriginalExtension());
-        $targetPath = 'uploads/payments/' . $fileName;
+        $targetDirectory = public_path('uploads/payments');
 
-        // Save file directly to public directory for easy preview
-        $file->move(public_path('uploads/payments'), $fileName);
+        if (! file_exists($targetDirectory)) {
+            mkdir($targetDirectory, 0755, true);
+        }
 
-        DB::transaction(function () use ($booking, $targetPath) {
+        $file->move($targetDirectory, $fileName);
+        $savedPath = 'uploads/payments/'.$fileName;
+
+        DB::transaction(function () use ($booking, $savedPath) {
             Payment::updateOrCreate(
                 ['booking_id' => $booking->id],
                 [
-                    'proof_image_path' => $targetPath,
+                    'amount' => $booking->total_price,
+                    'payment_method' => 'qris_static',
+                    'proof_image_path' => $savedPath,
                     'payment_status' => 'pending',
+                    'rejection_note' => null,
                     'created_at' => Carbon::now(),
                 ]
             );
@@ -48,7 +59,18 @@ class PaymentController extends Controller
         });
 
         return redirect()->route('booking.history')
-            ->with('success', 'Bukti pembayaran berhasil diunggah! Status: Menunggu Verifikasi Kasir.');
+            ->with('success', 'Bukti transfer QRIS berhasil diunggah! Kasir KOTHaK Photo akan segera memverifikasi transaksi Anda.');
+    }
+
+    protected function authorizeBookingAccess(Booking $booking): void
+    {
+        $user = Auth::user();
+        if ($user && ($user->isAdmin() || $user->isCashier())) {
+            return;
+        }
+
+        if (! $user || $user->id !== $booking->user_id) {
+            abort(403, 'Anda tidak memiliki hak akses untuk transaksi booking ini.');
+        }
     }
 }
-

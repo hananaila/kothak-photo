@@ -1,4 +1,5 @@
 <?php
+
 // File: app/Controllers/BookingController.php
 // Tugas 2.3: Logika Backend PHP untuk menyimpan data form booking ke tabel bookings dengan status 'Menunggu Pembayaran'
 
@@ -6,25 +7,27 @@ declare(strict_types=1);
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__.'/../../config/database.php';
 
-class BookingController {
-    public function createBooking(int $userId, int $packageId, int $scheduleId, string $studioBackdrop = 'Electric Blue Backdrop'): array {
+class BookingController
+{
+    public function createBooking(int $userId, int $packageId, int $scheduleId, string $studioBackdrop = 'Electric Blue Backdrop'): array
+    {
         $pdo = Database::getConnection();
         $pdo->beginTransaction();
 
         try {
             // 1. Kunci baris jadwal (FOR UPDATE) untuk mencegah double-booking saat klik bersamaan
-            $stmtSchedule = $pdo->prepare("
+            $stmtSchedule = $pdo->prepare('
                 SELECT id, date, start_time, end_time, capacity
                 FROM schedules
                 WHERE id = :schedule_id
                 FOR UPDATE
-            ");
+            ');
             $stmtSchedule->execute(['schedule_id' => $scheduleId]);
             $schedule = $stmtSchedule->fetch();
 
-            if (!$schedule) {
+            if (! $schedule) {
                 throw new RuntimeException('Jadwal slot tidak ditemukan.');
             }
 
@@ -43,11 +46,11 @@ class BookingController {
             }
 
             // 3. Buat nomor antrean otomatis (Format: KTH-001)
-            $stmtSeq = $pdo->prepare("
+            $stmtSeq = $pdo->prepare('
                 SELECT COUNT(*) FROM bookings b
                 INNER JOIN schedules s ON b.schedule_id = s.id
                 WHERE s.date = :slot_date
-            ");
+            ');
             $stmtSeq->execute(['slot_date' => $schedule['date']]);
             $queueNumber = sprintf('KTH-%03d', (int) $stmtSeq->fetchColumn() + 1);
 
@@ -72,10 +75,10 @@ class BookingController {
                 )
             ");
             $stmtInsert->execute([
-                'user_id'         => $userId,
-                'package_id'      => $packageId,
-                'schedule_id'     => $scheduleId,
-                'queue_number'    => $queueNumber,
+                'user_id' => $userId,
+                'package_id' => $packageId,
+                'schedule_id' => $scheduleId,
+                'queue_number' => $queueNumber,
                 'studio_backdrop' => $studioBackdrop,
             ]);
 
@@ -83,13 +86,14 @@ class BookingController {
             $pdo->commit();
 
             return [
-                'success'      => true,
-                'booking_id'   => $bookingId,
+                'success' => true,
+                'booking_id' => $bookingId,
                 'queue_number' => $queueNumber,
-                'status'       => 'Menunggu Pembayaran',
+                'status' => 'Menunggu Pembayaran',
             ];
         } catch (Throwable $e) {
             $pdo->rollBack();
+
             return [
                 'success' => false,
                 'message' => $e->getMessage(),

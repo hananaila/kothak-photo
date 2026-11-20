@@ -6,20 +6,20 @@ declare(strict_types=1);
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__.'/../../config/database.php';
 
 $pdo = Database::getConnection();
 $packageId = (int) ($_GET['package_id'] ?? 2);
 $selectedDate = $_GET['date'] ?? date('Y-m-d');
 
-$stmtPkg = $pdo->prepare("SELECT * FROM packages WHERE id = :id AND is_active = 1 LIMIT 1");
+$stmtPkg = $pdo->prepare('SELECT * FROM packages WHERE id = :id AND is_active = 1 LIMIT 1');
 $stmtPkg->execute(['id' => $packageId]);
 $package = $stmtPkg->fetch() ?: [
-    'id'          => 2,
-    'name'        => 'Kothak Signature Box (2-4 Orang)',
-    'duration'    => 15,
-    'price'       => 35000,
-    'description' => 'Sesi photobox 15 menit, 2 cetak 4R, soft file HD + GIF.'
+    'id' => 2,
+    'name' => 'Kothak Signature Box (2-4 Orang)',
+    'duration' => 15,
+    'price' => 35000,
+    'description' => 'Sesi photobox 15 menit, 2 cetak 4R, soft file HD + GIF.',
 ];
 
 $stmtSchedules = $pdo->prepare("
@@ -68,8 +68,9 @@ $schedules = $stmtSchedules->fetchAll();
       <div>
         <label class="block text-xs font-extrabold uppercase tracking-wider mb-2">Pilih Slot Waktu Tersedia (<?= htmlspecialchars($selectedDate) ?>):</label>
         <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          <?php foreach ($schedules as $slot): ?>
-            <?php $rem = (int) $slot['remaining_quota']; $isAvail = $rem > 0; ?>
+          <?php foreach ($schedules as $slot) { ?>
+            <?php $rem = (int) $slot['remaining_quota'];
+              $isAvail = $rem > 0; ?>
             <label class="border-2 border-slate-900 p-3 block <?= $isAvail ? 'bg-white hover:bg-blue-50 cursor-pointer' : 'bg-slate-200 opacity-60 cursor-not-allowed' ?>">
               <input type="radio" name="schedule_id" value="<?= (int) $slot['id'] ?>" <?= $isAvail ? 'required' : 'disabled' ?> class="mr-1.5 accent-blue-700" />
               <span class="font-mono font-extrabold text-xs">
@@ -79,7 +80,7 @@ $schedules = $stmtSchedules->fetchAll();
                 <?= $isAvail ? "Tersedia: {$rem}/{$slot['capacity']} Kuota" : 'PENUH (0 Slot)' ?>
               </div>
             </label>
-          <?php endforeach; ?>
+          <?php } ?>
         </div>
       </div>
 
