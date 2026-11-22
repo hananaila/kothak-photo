@@ -1,343 +1,351 @@
 @extends('layouts.app')
 
-@section('title', 'Katalog Paket Foto & Antrean Pintar — KOTHaK Photo Studio')
+@section('title', 'Ambil Antrean Photobox — KOTHaK Photo Studio')
 
 @section('content')
-<div class="space-y-10 sm:space-y-14">
+<div class="w-full space-y-6 sm:space-y-8">
 
-  <!-- HERO SECTION -->
-  <section class="bg-blue-700 text-white border-2 border-slate-900 shadow-[6px_6px_0px_#0F172A] relative overflow-hidden p-6 sm:p-10 lg:p-12">
-    <div class="checker-white absolute inset-0 pointer-events-none"></div>
-    <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+  <!-- HERO BANNER: Responsive Mobile, Tablet & Laptop -->
+  <section class="bg-gradient-to-br from-[#1E3A8A] via-[#1E3A8A] to-[#2D2DB0] text-white rounded-2xl sm:rounded-3xl border border-white/10 shadow-soft relative overflow-hidden p-6 sm:p-8 lg:p-10">
+    <div class="absolute -top-20 -right-20 w-64 h-64 bg-[#2D2DB0] rounded-full blur-3xl opacity-40 pointer-events-none"></div>
+    <div class="absolute -bottom-20 -left-20 w-64 h-64 bg-blue-400 rounded-full blur-3xl opacity-20 pointer-events-none"></div>
 
-      <!-- Left Column: Story & CTA -->
-      <div class="lg:col-span-7 space-y-4 sm:space-y-6">
-        <div class="inline-flex items-center gap-2 bg-slate-900 text-white border-2 border-white px-3 py-1 text-xs font-black uppercase tracking-widest">
-          <span class="w-2.5 h-2.5 bg-emerald-400 rounded-full animate-ping"></span>
-          <span>Studio Photobox #1 di Purbalingga</span>
+    <div class="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+      <div class="space-y-3 max-w-xl">
+        <div class="inline-flex items-center gap-1.5 bg-white/10 backdrop-blur-md text-white border border-white/20 px-3 py-1 rounded-full text-[11px] font-heading font-bold uppercase tracking-wider">
+          <span>Studio Photobox &bull; Purbalingga</span>
         </div>
-        <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.08]">
-          Coffee. Photo. <span class="font-editorial italic font-normal text-blue-200 underline decoration-2 underline-offset-8">Memory.</span>
+
+        <h1 class="text-2xl sm:text-3xl lg:text-4xl font-heading font-black tracking-tight leading-tight uppercase">
+          Self Photobox. <br />
+          <span class="font-serif italic font-normal text-[#F5F1E8] lowercase">capture your memories.</span>
         </h1>
-        <p class="text-sm sm:text-base text-blue-100 max-w-xl leading-relaxed font-medium">
-          Studio photobox estetik di Purbalingga dengan sistem antrean pintar & reservasi slot online. Pilih paket fotomu, kunci jadwal tanpa takut bentrok, dan bayar praktis via QRIS Statis.
+
+        <p class="text-xs sm:text-sm text-white/90 leading-relaxed font-sans">
+          Ambil antrean langsung dari ponselmu tanpa perlu registrasi akun. Cukup pilih booth, isi nama, dan langsung dapatkan nomor antreanmu.
         </p>
-        <div class="flex flex-wrap items-center gap-3 pt-2">
-          <a href="#packagesSection" class="neo-btn bg-white text-blue-700 hover:bg-blue-50 px-6 py-3.5 text-xs sm:text-sm font-black uppercase tracking-widest text-center">
-            PILIH PAKET FOTO ➔
-          </a>
-          <a href="{{ route('queue.display') }}" target="_blank" class="neo-btn bg-slate-900 text-white hover:bg-slate-800 px-5 py-3.5 text-xs sm:text-sm font-bold uppercase tracking-wider text-center flex items-center gap-1.5">
-            <span>📺</span> Buka Layar Antrean TV
-          </a>
-        </div>
-        <!-- Info Badges -->
-        <div class="pt-4 border-t border-blue-500/50 grid grid-cols-3 gap-2 sm:gap-4 text-[11px] sm:text-xs">
-          <div>
-            <div class="text-blue-200 font-bold uppercase">LOKASI</div>
-            <div class="font-bold text-white mt-0.5">Purbalingga Kota</div>
-          </div>
-          <div>
-            <div class="text-blue-200 font-bold uppercase">OPERASIONAL</div>
-            <div class="font-bold text-white mt-0.5">09:00 - 23:00 WIB</div>
-          </div>
-          <div>
-            <div class="text-blue-200 font-bold uppercase">PEMBAYARAN</div>
-            <div class="font-bold text-white mt-0.5">QRIS Statis Semua E-Wallet</div>
-          </div>
-        </div>
       </div>
 
-      <!-- Right Column: Live Smart Queue Monitor Widget (FR-04) -->
-      <div class="lg:col-span-5">
-        <div class="neo-box bg-[#F5F4EE] text-slate-900 p-5 sm:p-6" id="liveQueueWidget">
-          <div class="flex items-center justify-between border-b-2 border-slate-900 pb-3 mb-4">
-            <div>
-              <span class="text-[10px] font-black uppercase tracking-widest text-blue-700 block">SMART QUEUE LIVE</span>
-              <h3 class="text-lg font-black text-slate-900">Status Antrean Hari Ini</h3>
-            </div>
-            <span class="bg-emerald-500 text-slate-900 border-2 border-slate-900 px-2.5 py-1 text-[11px] font-black uppercase tracking-wider flex items-center gap-1">
-              <span class="w-2 h-2 rounded-full bg-white animate-ping"></span> LIVE
-            </span>
-          </div>
-
-          <div class="grid grid-cols-2 gap-3 mb-4">
-            <!-- In Studio -->
-            <div class="bg-blue-700 text-white border-2 border-slate-900 p-3.5 shadow-[3px_3px_0px_#0F172A]">
-              <div class="text-[9px] font-black uppercase tracking-wider text-blue-200">SEDANG DI STUDIO</div>
-              <div id="widgetInStudioNumber" class="text-2xl sm:text-3xl font-black font-mono tracking-tight mt-1 text-amber-300">
-                {{ $inStudio?->queue_number ?? 'SIAP' }}
-              </div>
-              <div id="widgetInStudioName" class="text-[11px] font-bold text-blue-100 truncate mt-0.5">
-                {{ $inStudio ? $inStudio->user->name : 'Studio Kosong / Siap' }}
-              </div>
-            </div>
-
-            <!-- Next Queue -->
-            <div class="bg-white text-slate-900 border-2 border-slate-900 p-3.5 shadow-[3px_3px_0px_#0F172A]">
-              <div class="text-[9px] font-black uppercase tracking-wider text-slate-500">BERIKUTNYA</div>
-              <div id="widgetNextNumber" class="text-2xl sm:text-3xl font-black font-mono tracking-tight mt-1 text-blue-700">
-                {{ $callingNext?->queue_number ?? 'TIDAK ADA' }}
-              </div>
-              <div id="widgetNextName" class="text-[11px] font-bold text-slate-700 truncate mt-0.5">
-                {{ $callingNext ? $callingNext->user->name : 'Semua terlayani' }}
-              </div>
-            </div>
-          </div>
-
-          <!-- Booth status bars -->
-          <div class="bg-white border-2 border-slate-900 p-3 mb-3 text-xs space-y-2">
-            <div class="flex items-center justify-between">
-              <span class="font-bold text-slate-700">Booth A (Electric Blue)</span>
-              <span class="font-mono text-[10px] font-black px-2 py-0.5 border {{ $inStudio ? 'bg-amber-100 text-amber-900 border-amber-400' : 'bg-emerald-100 text-emerald-800 border-emerald-400' }}">
-                {{ $inStudio ? 'SESI BERLANGSUNG' : 'READY / SIAP' }}
-              </span>
-            </div>
-            <div class="flex items-center justify-between">
-              <span class="font-bold text-slate-700">Booth B (Warm Cream)</span>
-              <span class="font-mono text-[10px] font-black px-2 py-0.5 border bg-emerald-100 text-emerald-800 border-emerald-400">
-                READY / SIAP
-              </span>
-            </div>
-          </div>
-
-          <div class="flex items-center justify-between text-xs pt-1">
-            <span class="text-slate-600 font-bold">Antrean Menunggu: <strong id="widgetWaitingCount" class="text-blue-700 font-mono">{{ $waitingCount }}</strong></span>
-            <a href="{{ route('booking.history') }}" class="font-black text-blue-700 hover:underline uppercase text-[11px]">
-              Cek Tiket Saya ➔
-            </a>
-          </div>
+      <!-- Quick info card on banner -->
+      <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-4 sm:p-5 text-xs text-white space-y-2 shrink-0 md:w-64">
+        <div class="flex items-center justify-between text-[11px] font-heading font-bold uppercase text-white/80">
+          <span>STATUS STUDIO</span>
+          <span class="text-emerald-300 font-bold">Buka</span>
         </div>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- STEPPER PROCESS BAR -->
-  <section class="border-2 border-slate-900 bg-white p-4 sm:p-6 shadow-[4px_4px_0px_#1D4ED8]">
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-      <div class="border-2 border-slate-900 bg-[#F5F4EE] p-3 flex items-start gap-2.5">
-        <span class="bg-blue-700 text-white font-mono font-black text-xs px-2 py-1 border border-slate-900">01</span>
-        <div>
-          <div class="font-black text-xs uppercase text-slate-900">Pilih Paket</div>
-          <div class="text-[11px] text-slate-600 mt-0.5">Tentukan paket photobox & add-ons.</div>
-        </div>
-      </div>
-      <div class="border-2 border-slate-900 bg-[#F5F4EE] p-3 flex items-start gap-2.5">
-        <span class="bg-blue-700 text-white font-mono font-black text-xs px-2 py-1 border border-slate-900">02</span>
-        <div>
-          <div class="font-black text-xs uppercase text-slate-900">Kunci Jadwal Slot</div>
-          <div class="text-[11px] text-slate-600 mt-0.5">Pilih tanggal & jam anti double-booking.</div>
-        </div>
-      </div>
-      <div class="border-2 border-slate-900 bg-[#F5F4EE] p-3 flex items-start gap-2.5">
-        <span class="bg-blue-700 text-white font-mono font-black text-xs px-2 py-1 border border-slate-900">03</span>
-        <div>
-          <div class="font-black text-xs uppercase text-slate-900">Bayar QRIS Statis</div>
-          <div class="text-[11px] text-slate-600 mt-0.5">Scan barcode & upload bukti transfer.</div>
-        </div>
-      </div>
-      <div class="border-2 border-slate-900 bg-[#F5F4EE] p-3 flex items-start gap-2.5">
-        <span class="bg-blue-700 text-white font-mono font-black text-xs px-2 py-1 border border-slate-900">04</span>
-        <div>
-          <div class="font-black text-xs uppercase text-slate-900">Tiket & Antrean</div>
-          <div class="text-[11px] text-slate-600 mt-0.5">Dapat no. antrean & pantau giliran.</div>
+        <div class="font-mono text-sm font-bold">09.00 — 23.00 WIB</div>
+        <div class="pt-2 border-t border-white/15 flex items-center justify-between text-[11px]">
+          <span class="text-white/80">Antrean Aktif:</span>
+          <span class="font-mono font-black text-amber-300" id="heroWaitingCount">{{ array_sum($boothQueues) }} Antrean</span>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- SECTION 1: KATALOG PAKET FOTO (FR-07) -->
-  <section id="packagesSection" class="space-y-6">
-    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b-2 border-slate-900 pb-4">
-      <div>
-        <span class="text-xs font-black uppercase tracking-[0.2em] text-blue-700">STUDIO PHOTOBOX CATALOG</span>
-        <h2 class="text-2xl sm:text-4xl font-black text-slate-900 mt-1">
-          Koleksi Paket Foto <span class="font-editorial italic font-normal text-blue-700">Kothak</span>
+  <!-- FORM AMBIL ANTREAN: FULL-WIDTH RESPONSIVE (MENGIKUTI LEBAR HERO BANNER) -->
+  <form action="{{ route('booking.store') }}" method="POST" id="mainBookingForm" onsubmit="return validateBookingForm()" class="w-full space-y-6 sm:space-y-8">
+    @csrf
+    <input type="hidden" name="package_id" id="hiddenPackageId" value="{{ $defaultPackage?->id }}" />
+    <input type="hidden" name="schedule_id" value="{{ $todaySchedule?->id }}" />
+
+    <!-- LANGKAH 01: PILIH BOOTH (TERHUBUNG OTOMATIS DENGAN KELOLA PAKET ADMIN) -->
+    <section class="w-full bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-7 lg:p-8 border border-[#E7E2D8] shadow-[0_4px_20px_-4px_rgba(26,26,46,0.05),0_1px_3px_rgba(26,26,46,0.02)] space-y-5">
+      <div class="border-b border-[#F0ECE4] pb-4">
+        <span class="text-[11px] sm:text-xs font-heading font-black uppercase tracking-wider text-[#1E3A8A]">LANGKAH 01 &bull; PILIH STUDIO BOOTH</span>
+        <h2 class="text-xl sm:text-2xl lg:text-3xl font-heading font-black text-[#1A1A2E] mt-1">
+          Pilih Booth <span class="font-serif italic font-normal text-[#1E3A8A] lowercase">fotomu</span>
         </h2>
-        <p class="text-xs sm:text-sm text-slate-600 mt-1">
-          Semua sesi mencakup pencahayaan studio profesional, properti gratis, cetak foto instan, dan soft file HD.
+        <p class="text-xs sm:text-sm text-slate-500 font-sans mt-1">
+          Sentuh atau klik salah satu booth untuk memilih. Klik lagi jika ingin membatalkan pilihan.
         </p>
       </div>
 
-      <!-- Category Filter Tabs -->
-      <div class="flex flex-wrap gap-2 text-xs font-black uppercase">
-        <button type="button" onclick="filterPackages('ALL')" class="filter-tab px-3 py-1.5 border-2 border-slate-900 bg-blue-700 text-white shadow-[2px_2px_0px_#0F172A]" data-cat="ALL">Semua ({{ $packages->count() }})</button>
-        <button type="button" onclick="filterPackages('SOLO_DUO')" class="filter-tab px-3 py-1.5 border-2 border-slate-900 bg-white text-slate-900 hover:bg-slate-100" data-cat="SOLO_DUO">Solo / Duo</button>
-        <button type="button" onclick="filterPackages('GROUP')" class="filter-tab px-3 py-1.5 border-2 border-slate-900 bg-white text-slate-900 hover:bg-slate-100" data-cat="GROUP">Grup & Bestie</button>
-        <button type="button" onclick="filterPackages('BUNDLING')" class="filter-tab px-3 py-1.5 border-2 border-slate-900 bg-white text-slate-900 hover:bg-slate-100" data-cat="BUNDLING">Bundle Kopi</button>
-      </div>
-    </div>
+      <!-- Booth Cards: Dinamis dari Database Paket Studio Admin -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5" id="boothListContainer">
+        @forelse($packages as $pkg)
+        <div
+          class="booth-card relative flex flex-col justify-between p-5 sm:p-6 rounded-2xl border-2 cursor-pointer transition-all duration-200 select-none border-[#E5E1DA] bg-white hover:border-[#1E3A8A]/40 shadow-xs group"
+          data-booth="{{ $pkg->name }}"
+          data-package-id="{{ $pkg->id }}"
+          onclick="selectBoothCard(this)"
+        >
+          <input
+            type="radio"
+            name="studio_backdrop"
+            id="radio_pkg_{{ $pkg->id }}"
+            value="{{ $pkg->name }}"
+            class="sr-only booth-radio"
+          />
 
-    <!-- PACKAGES GRID -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      @foreach($packages as $pkg)
-      <div class="package-card neo-box bg-white flex flex-col justify-between" data-category="{{ $pkg->category }}">
-        <div>
-          <!-- Card Header -->
-          <div class="p-5 border-b-2 border-slate-900 bg-[#F5F4EE] flex items-center justify-between">
-            <span class="bg-blue-700 text-white text-[10px] font-black uppercase px-2.5 py-1 tracking-wider border border-slate-900">
-              {{ $pkg->badge ?? 'PHOTOBOX' }}
-            </span>
-            <div class="text-right">
-              <span class="text-[10px] font-bold text-slate-500 uppercase">Durasi:</span>
-              <span class="font-mono font-black text-xs text-slate-900 ml-1">{{ $pkg->duration }} Menit</span>
+          <!-- Top row: Waiting Counter Box & Circular Checkmark -->
+          <div class="flex items-center justify-between gap-3 mb-4">
+            <div class="booth-waiting-box px-3 py-1.5 rounded-xl bg-[#E8EEF9] text-[#1E3A8A] border border-[#1E3A8A]/25 flex items-center gap-2 shrink-0 shadow-xs transition-all">
+              <span class="font-mono font-black text-base sm:text-lg leading-none text-[#1E3A8A] booth-waiting-num" id="boothCount_{{ $pkg->id }}">
+                {{ $boothQueues[$pkg->name] ?? 0 }}
+              </span>
+              <span class="text-[8px] sm:text-[9px] font-heading font-black uppercase tracking-wider text-[#1E3A8A]">WAITING</span>
+            </div>
+
+            <div class="booth-check-circle w-7 h-7 sm:w-8 sm:h-8 rounded-full border-2 border-slate-300 text-transparent flex items-center justify-center shrink-0 transition-colors">
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
             </div>
           </div>
 
-          <!-- Card Body -->
-          <div class="p-5 space-y-3">
-            <h3 class="text-xl font-black text-slate-900">{{ $pkg->name }}</h3>
-            <p class="text-xs text-slate-600 leading-relaxed min-h-[48px]">
-              {{ $pkg->description }}
+          <!-- Middle: Booth Title & Operational Hours -->
+          <div class="space-y-1 mb-4">
+            <div>
+              <h3 class="font-heading font-black text-base sm:text-lg text-[#1A1A2E] leading-snug group-hover:text-[#1E3A8A] transition-colors">
+                {{ $pkg->name }}
+              </h3>
+            </div>
+            <p class="text-xs text-slate-500 font-sans">
+              {{ $pkg->operational_hours ?: 'Buka 09.00 — 23.00 WIB' }}
             </p>
-
-            <div class="pt-2 border-t border-slate-200 flex items-center justify-between text-xs text-slate-700">
-              <span class="flex items-center gap-1 font-bold">
-                <span>👥</span> Kapasitas: <strong>1 - {{ $pkg->max_participants }} Orang</strong>
-              </span>
-              <span class="font-mono text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 border border-emerald-200">
-                Studio Ready
-              </span>
-            </div>
           </div>
-        </div>
 
-        <!-- Card Footer -->
-        <div class="p-5 border-t-2 border-slate-900 bg-slate-50 flex items-center justify-between gap-3">
-          <div>
-            <div class="text-[10px] font-bold uppercase text-slate-500">Harga Paket:</div>
-            <div class="text-2xl font-black font-mono text-blue-700">
+          <!-- Bottom: Pricing & Prints Included -->
+          <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
+            <span class="font-mono font-black text-sm sm:text-base text-[#1E3A8A]">
               Rp {{ number_format($pkg->price, 0, ',', '.') }}
-            </div>
+            </span>
+            <span class="text-[11px] text-slate-600 font-medium">
+              {{ $pkg->prints_included ?: '2 Strip + Soft File' }}
+            </span>
           </div>
-          <a href="{{ route('schedule.select', $pkg->id) }}" class="neo-btn bg-blue-700 hover:bg-blue-800 text-white px-4 py-2.5 text-xs font-black uppercase tracking-wider text-center shrink-0">
-            PILIH JADWAL ➔
-          </a>
         </div>
+        @empty
+        <div class="col-span-full py-12 text-center text-slate-500 font-medium text-xs bg-slate-50 rounded-2xl border border-dashed border-slate-300">
+          Belum ada bilik booth aktif saat ini.
+        </div>
+        @endforelse
       </div>
-      @endforeach
-    </div>
-  </section>
+    </section>
 
-  <!-- SECTION 2: LAYANAN TAMBAHAN (ADD-ONS) -->
-  <section class="border-2 border-slate-900 bg-white p-6 sm:p-8 shadow-[4px_4px_0px_#0F172A]">
-    <div class="border-b-2 border-slate-900 pb-3 mb-6">
-      <span class="text-xs font-black uppercase tracking-[0.2em] text-blue-700">LAYANAN TAMBAHAN (OPTIONAL ADD-ONS)</span>
-      <h3 class="text-xl sm:text-2xl font-black text-slate-900 mt-1">Upgrade Pengalaman Fotomu</h3>
-      <p class="text-xs text-slate-600 mt-1">Layanan ekstra ini dapat ditambahkan langsung saat kamu memilih jadwal sesi foto.</p>
-    </div>
+    <!-- LANGKAH 02: DATA DIRI PEMESAN (FULL-WIDTH 3-COLUMN INPUTS ON DESKTOP) -->
+    <section class="w-full bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-7 lg:p-8 border border-[#E7E2D8] shadow-[0_4px_20px_-4px_rgba(26,26,46,0.05),0_1px_3px_rgba(26,26,46,0.02)] space-y-5">
+      <div class="border-b border-[#F0ECE4] pb-4">
+        <span class="text-[11px] sm:text-xs font-heading font-black uppercase tracking-wider text-[#1E3A8A]">LANGKAH 02 &bull; DATA DIRI PEMESAN</span>
+        <h2 class="text-xl sm:text-2xl lg:text-3xl font-heading font-black text-[#1A1A2E] mt-1">
+          Informasi <span class="font-serif italic font-normal text-[#1E3A8A] lowercase">pemesan &amp; tiket</span>
+        </h2>
+        <p class="text-xs sm:text-sm text-slate-500 font-sans mt-1">
+          Cukup isi nama &amp; kontak. Nomor antrean dan notifikasi giliran akan langsung aktif di layarmu.
+        </p>
+      </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      @foreach($addOns as $ao)
-      <div class="border-2 border-slate-900 bg-[#F5F4EE] p-4 flex flex-col justify-between">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5">
         <div>
-          <div class="font-black text-sm text-slate-900">{{ $ao->name }}</div>
-          <p class="text-[11px] text-slate-600 mt-1">{{ $ao->description }}</p>
+          <label for="customerName" class="block text-xs font-heading font-bold uppercase tracking-wider mb-1.5 text-[#1A1A2E]">
+            Nama Pemesan *
+          </label>
+          <input
+            type="text"
+            id="customerName"
+            name="name"
+            value="{{ (Auth::check() && Auth::user()->role === 'customer') ? Auth::user()->name : old('name') }}"
+            required
+            placeholder="Contoh: Hana Naila"
+            class="w-full rounded-xl border border-slate-300 bg-white p-3 text-sm font-bold text-[#1A1A2E] focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A] shadow-sm"
+          />
         </div>
-        <div class="mt-3 pt-2 border-t border-slate-300 font-mono font-black text-blue-700 text-sm">
-          + Rp {{ number_format($ao->price, 0, ',', '.') }}
+
+        <div>
+          <label for="customerPhone" class="block text-xs font-heading font-bold uppercase tracking-wider mb-1.5 text-[#1A1A2E]">
+            Nomor Handphone / WA *
+          </label>
+          <input
+            type="tel"
+            id="customerPhone"
+            name="phone_whatsapp"
+            value="{{ (Auth::check() && Auth::user()->role === 'customer') ? Auth::user()->phone_whatsapp : old('phone_whatsapp') }}"
+            required
+            placeholder="Contoh: 081234567890"
+            class="w-full rounded-xl border border-slate-300 bg-white p-3 text-sm font-mono font-bold text-[#1A1A2E] focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A] shadow-sm"
+          />
+        </div>
+
+        <div>
+          <label for="bookingNotes" class="block text-xs font-heading font-bold uppercase tracking-wider mb-1.5 text-[#1A1A2E]">
+            Catatan Tambahan (Opsional)
+          </label>
+          <input
+            type="text"
+            id="bookingNotes"
+            name="notes"
+            placeholder="Contoh: Butuh kursi"
+            class="w-full rounded-xl border border-slate-300 bg-white p-3 text-sm font-medium text-[#1A1A2E] focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A] shadow-sm"
+          />
         </div>
       </div>
-      @endforeach
-    </div>
-  </section>
 
-  <!-- SECTION 3: TABEL ANTREAN PINTAR LIVE (FR-04) -->
-  <section class="border-2 border-slate-900 bg-white shadow-[6px_6px_0px_#1D4ED8] overflow-hidden">
-    <div class="bg-blue-700 text-white px-5 py-4 border-b-2 border-slate-900 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-      <div>
-        <h3 class="text-lg font-black uppercase tracking-wider">Antrean Photobox Hari Ini</h3>
-        <p class="text-xs text-blue-100">Pantau pergerakan antrean studio secara real-time dari ponselmu.</p>
+      <!-- TOMBOL AMBIL ANTREAN: FULL-WIDTH CTA -->
+      <div class="pt-2">
+        <button
+          type="submit"
+          id="submitBookingBtn"
+          disabled
+          class="submitBookingBtn w-full bg-slate-200 text-slate-400 py-4 px-6 text-xs sm:text-sm font-heading font-black uppercase tracking-wider text-center rounded-2xl cursor-not-allowed shrink-0 transition-all shadow-sm"
+        >
+          Pilih Booth Terlebih Dahulu
+        </button>
       </div>
-      <a href="{{ route('queue.display') }}" target="_blank" class="neo-btn bg-white text-blue-900 hover:bg-blue-50 px-3 py-1.5 text-xs font-black uppercase tracking-wider shrink-0 text-center">
-        Buka Mode Layar Penuh (TV Display) ↗
-      </a>
-    </div>
+    </section>
 
-    <!-- Desktop Table -->
-    <div class="overflow-x-auto">
-      <table class="w-full text-left border-collapse text-xs">
-        <thead>
-          <tr class="bg-[#F5F4EE] border-b-2 border-slate-900 uppercase font-black text-slate-700">
-            <th class="p-3.5">No. Antrean</th>
-            <th class="p-3.5">Pelanggan</th>
-            <th class="p-3.5">Paket Foto</th>
-            <th class="p-3.5">Slot Waktu</th>
-            <th class="p-3.5">Status</th>
-          </tr>
-        </thead>
-        <tbody id="liveQueueTableBody" class="divide-y-2 divide-slate-900">
-          @forelse($activeQueues as $q)
-          <tr class="hover:bg-slate-50 transition-colors {{ $q->status === 'in_studio' ? 'bg-amber-50 font-bold' : '' }}">
-            <td class="p-3.5 font-mono font-black text-blue-700 text-sm">{{ $q->queue_number }}</td>
-            <td class="p-3.5 font-bold text-slate-900">{{ $q->user->name }}</td>
-            <td class="p-3.5">{{ $q->package->name }}</td>
-            <td class="p-3.5 font-mono text-slate-600">{{ $q->schedule?->formatted_time ?? '-' }}</td>
-            <td class="p-3.5">
-              <span class="border px-2 py-0.5 text-[10px] font-black uppercase {{ $q->status_badge_class }}">
-                {{ $q->status_label }}
-              </span>
-            </td>
-          </tr>
-          @empty
-          <tr>
-            <td colspan="5" class="p-8 text-center text-slate-500 font-bold">
-              Belum ada antrean untuk hari ini. Jadilah yang pertama reservasi!
-            </td>
-          </tr>
-          @endforelse
-        </tbody>
-      </table>
-    </div>
-  </section>
+  </form>
 
 </div>
 
 @push('scripts')
 <script>
-  function filterPackages(category) {
-    const cards = document.querySelectorAll('.package-card');
-    const tabs = document.querySelectorAll('.filter-tab');
+  let currentSelectedBooth = null;
 
-    tabs.forEach(t => {
-      if (t.dataset.cat === category) {
-        t.className = 'filter-tab px-3 py-1.5 border-2 border-slate-900 bg-blue-700 text-white shadow-[2px_2px_0px_#0F172A]';
-      } else {
-        t.className = 'filter-tab px-3 py-1.5 border-2 border-slate-900 bg-white text-slate-900 hover:bg-slate-100';
-      }
-    });
+  function selectBoothCard(cardEl) {
+    if (!cardEl) return;
+    const boothName = cardEl.getAttribute('data-booth');
+    const packageId = cardEl.getAttribute('data-package-id');
 
-    cards.forEach(card => {
-      if (category === 'ALL' || card.dataset.category === category) {
-        card.style.display = 'flex';
-      } else {
-        card.style.display = 'none';
-      }
-    });
+    if (currentSelectedBooth === boothName) {
+      // Sentuh lagi untuk membatalkan pilihan (toggle off)
+      currentSelectedBooth = null;
+      const pkgInput = document.getElementById('hiddenPackageId');
+      if (pkgInput) pkgInput.value = '';
+    } else {
+      currentSelectedBooth = boothName;
+      const pkgInput = document.getElementById('hiddenPackageId');
+      if (pkgInput && packageId) pkgInput.value = packageId;
+    }
+    renderBoothUI();
   }
 
-  // Real-time Queue Polling every 8 seconds
-  setInterval(async function() {
-    try {
-      const res = await fetch("{{ route('api.queue.status') }}");
-      if (!res.ok) return;
-      const data = await res.json();
-
-      const inStudioNum = document.getElementById('widgetInStudioNumber');
-      const inStudioName = document.getElementById('widgetInStudioName');
-      const nextNum = document.getElementById('widgetNextNumber');
-      const nextName = document.getElementById('widgetNextName');
-      const waitingCount = document.getElementById('widgetWaitingCount');
-
-      if (inStudioNum) inStudioNum.innerText = data.in_studio ? data.in_studio.queue_number : 'SIAP';
-      if (inStudioName) inStudioName.innerText = data.in_studio ? data.in_studio.customer_name : 'Studio Kosong / Siap';
-      if (nextNum) nextNum.innerText = data.next_queue ? data.next_queue.queue_number : 'TIDAK ADA';
-      if (nextName) nextName.innerText = data.next_queue ? data.next_queue.customer_name : 'Semua terlayani';
-      if (waitingCount) waitingCount.innerText = data.waiting_count;
-    } catch(e) {
-      console.log('Poll queue error:', e);
+  // Alias untuk kompatibilitas
+  function handleBoothClick(boothName, packageId) {
+    if (typeof boothName === 'object' && boothName !== null && boothName.getAttribute) {
+      return selectBoothCard(boothName);
     }
-  }, 8000);
+    currentSelectedBooth = boothName;
+    const pkgInput = document.getElementById('hiddenPackageId');
+    if (pkgInput && packageId) pkgInput.value = packageId;
+    renderBoothUI();
+  }
+
+  function renderBoothUI() {
+    const cards = document.querySelectorAll('.booth-card');
+    const submitBtns = document.querySelectorAll('.submitBookingBtn');
+
+    cards.forEach(card => {
+      const booth = card.getAttribute('data-booth');
+      const radio = card.querySelector('.booth-radio');
+      const circle = card.querySelector('.booth-check-circle');
+      const title = card.querySelector('h3');
+
+      if (booth === currentSelectedBooth) {
+        if (radio) radio.checked = true;
+        card.classList.remove('border-[#E5E1DA]', 'border-slate-200', 'shadow-xs', 'shadow-sm');
+        card.classList.add('border-[#1E3A8A]', 'ring-2', 'ring-[#1E3A8A]/20', 'shadow-md');
+
+        if (title) title.classList.add('text-[#1E3A8A]');
+
+        if (circle) {
+          circle.classList.remove('border-slate-300', 'text-transparent');
+          circle.classList.add('bg-[#1E3A8A]', 'text-white', 'border-[#1E3A8A]');
+        }
+      } else {
+        if (radio) radio.checked = false;
+        card.classList.remove('border-[#1E3A8A]', 'ring-2', 'ring-[#1E3A8A]/20', 'shadow-md');
+        card.classList.add('border-[#E5E1DA]', 'shadow-xs', 'bg-white');
+
+        if (title) title.classList.remove('text-[#1E3A8A]');
+
+        if (circle) {
+          circle.classList.remove('bg-[#1E3A8A]', 'text-white', 'border-[#1E3A8A]');
+          circle.classList.add('border-slate-300', 'text-transparent');
+        }
+      }
+    });
+
+    if (currentSelectedBooth) {
+      submitBtns.forEach(btn => {
+        btn.disabled = false;
+        btn.className = 'submitBookingBtn w-full kothak-btn-primary py-4 px-6 text-xs sm:text-sm font-heading font-black uppercase tracking-wider text-center rounded-2xl shadow-md hover:shadow-lg transition-all shrink-0 cursor-pointer';
+        btn.innerHTML = 'Ambil Nomor Antrean &rarr;';
+      });
+    } else {
+      submitBtns.forEach(btn => {
+        btn.disabled = true;
+        btn.className = 'submitBookingBtn w-full bg-slate-200 text-slate-400 py-4 px-6 text-xs sm:text-sm font-heading font-black uppercase tracking-wider text-center rounded-2xl cursor-not-allowed shrink-0 transition-all shadow-sm';
+        btn.innerHTML = 'Pilih Booth Terlebih Dahulu';
+      });
+    }
+  }
+
+  function validateBookingForm() {
+    if (!currentSelectedBooth) {
+      showKothakAlert({
+        title: 'Pilih Booth Terlebih Dahulu',
+        message: 'Silakan sentuh atau klik salah satu bilik booth foto sebelum mengambil nomor antrean.',
+        type: 'warning',
+        buttonText: 'Mengerti'
+      });
+      return false;
+    }
+    return true;
+  }
+
+  // Real-time Queue Polling & Instant Broadcast Sync (Pembaruan Dinamis Tanpa Refresh)
+  let isCustomerRefreshing = false;
+
+  async function pollQueueData() {
+    if (isCustomerRefreshing) return;
+    isCustomerRefreshing = true;
+
+    try {
+      const url = window.location.pathname + '?_t=' + Date.now();
+      const res = await fetch(url, {
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest',
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache'
+        },
+        cache: 'no-store'
+      });
+      if (!res.ok) return;
+      const html = await res.text();
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+
+      // 1. Update hero waiting counter
+      const newHero = doc.getElementById('heroWaitingCount');
+      const curHero = document.getElementById('heroWaitingCount');
+      if (newHero && curHero) {
+        curHero.innerHTML = newHero.innerHTML;
+      }
+
+      // 2. Update booth list cards (sinkron langsung saat admin tambah/ubah booth atau antrean bertambah)
+      const newBoothContainer = doc.getElementById('boothListContainer');
+      const curBoothContainer = document.getElementById('boothListContainer');
+      if (newBoothContainer && curBoothContainer) {
+        curBoothContainer.innerHTML = newBoothContainer.innerHTML;
+        renderBoothUI(); // mempertahankan pilihan booth pelanggan saat ini
+      }
+    } catch(e) {
+      console.log('Customer live poll error:', e);
+    } finally {
+      isCustomerRefreshing = false;
+    }
+  }
+
+  // Cross-tab broadcast listener for instant sync (0 milidetik antar-tab)
+  try {
+    if ('BroadcastChannel' in window) {
+      const liveQueueChannel = new BroadcastChannel('kothak_live_queue');
+      liveQueueChannel.onmessage = pollQueueData;
+    }
+  } catch(e) {}
+  window.addEventListener('storage', function(e) {
+    if (e.key === 'kothak_queue_bump') pollQueueData();
+  });
+
+  // Polling data otomatis setiap 1.5 detik (Real-Time Ultra Responsif)
+  setInterval(pollQueueData, 1500);
 </script>
 @endpush
 @endsection

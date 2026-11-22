@@ -81,9 +81,11 @@ class Booking extends Model
             'waiting_verification' => 'Menunggu Verifikasi',
             'confirmed' => 'Terkonfirmasi',
             'checked_in' => 'Check-in (Siap)',
+            'calling' => 'Dipanggil (Konfirmasi)',
             'in_studio' => 'Sedang di Studio',
             'completed' => 'Selesai',
             'cancelled' => 'Dibatalkan',
+            'no_show' => 'Tidak Hadir',
             default => ucfirst(str_replace('_', ' ', $this->status)),
         };
     }
@@ -94,9 +96,11 @@ class Booking extends Model
             'waiting_verification' => 'bg-amber-100 text-amber-900 border-amber-400',
             'confirmed' => 'bg-blue-100 text-blue-900 border-blue-400',
             'checked_in' => 'bg-purple-100 text-purple-900 border-purple-400',
+            'calling' => 'bg-amber-400 text-slate-900 border-slate-900 font-extrabold animate-pulse',
             'in_studio' => 'bg-emerald-500 text-slate-900 border-slate-900 font-extrabold animate-pulse',
             'completed' => 'bg-emerald-100 text-emerald-900 border-emerald-400',
             'cancelled' => 'bg-rose-100 text-rose-900 border-rose-400',
+            'no_show' => 'bg-rose-100 text-rose-900 border-rose-400',
             default => 'bg-slate-100 text-slate-800 border-slate-300',
         };
     }

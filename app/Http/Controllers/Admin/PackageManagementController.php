@@ -23,23 +23,27 @@ class PackageManagementController extends Controller
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:120'],
-            'description' => ['required', 'string'],
-            'duration' => ['required', 'integer', 'min:5', 'max:120'],
-            'max_participants' => ['required', 'integer', 'min:1', 'max:20'],
+            'description' => ['nullable', 'string'],
+            'duration' => ['nullable', 'integer', 'min:5', 'max:120'],
+            'max_participants' => ['nullable', 'integer', 'min:1', 'max:20'],
             'price' => ['required', 'numeric', 'min:0'],
+            'prints_included' => ['nullable', 'string', 'max:100'],
+            'operational_hours' => ['nullable', 'string', 'max:100'],
             'badge' => ['nullable', 'string', 'max:50'],
-            'category' => ['required', 'string', 'max:50'],
+            'category' => ['nullable', 'string', 'max:50'],
             'is_active' => ['nullable', 'boolean'],
         ]);
 
         Package::create([
             'name' => $validated['name'],
-            'description' => $validated['description'],
-            'duration' => $validated['duration'],
-            'max_participants' => $validated['max_participants'],
+            'description' => $validated['description'] ?? ($validated['name'].' Photobox'),
+            'duration' => $validated['duration'] ?? 15,
+            'max_participants' => $validated['max_participants'] ?? 4,
             'price' => $validated['price'],
+            'prints_included' => $validated['prints_included'] ?: '2 Strip + Soft File',
+            'operational_hours' => $validated['operational_hours'] ?: 'Buka 09.00 — 23.00 WIB',
             'badge' => $validated['badge'] ?? null,
-            'category' => $validated['category'],
+            'category' => $validated['category'] ?? 'BOOTH',
             'is_active' => $request->boolean('is_active', true),
         ]);
 
@@ -50,24 +54,28 @@ class PackageManagementController extends Controller
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:120'],
-            'description' => ['required', 'string'],
-            'duration' => ['required', 'integer', 'min:5', 'max:120'],
-            'max_participants' => ['required', 'integer', 'min:1', 'max:20'],
+            'description' => ['nullable', 'string'],
+            'duration' => ['nullable', 'integer', 'min:5', 'max:120'],
+            'max_participants' => ['nullable', 'integer', 'min:1', 'max:20'],
             'price' => ['required', 'numeric', 'min:0'],
+            'prints_included' => ['nullable', 'string', 'max:100'],
+            'operational_hours' => ['nullable', 'string', 'max:100'],
             'badge' => ['nullable', 'string', 'max:50'],
-            'category' => ['required', 'string', 'max:50'],
+            'category' => ['nullable', 'string', 'max:50'],
             'is_active' => ['nullable', 'boolean'],
         ]);
 
         $package->update([
             'name' => $validated['name'],
-            'description' => $validated['description'],
-            'duration' => $validated['duration'],
-            'max_participants' => $validated['max_participants'],
+            'description' => $validated['description'] ?? $package->description ?? ($validated['name'].' Photobox'),
+            'duration' => $validated['duration'] ?? $package->duration ?? 15,
+            'max_participants' => $validated['max_participants'] ?? 4,
             'price' => $validated['price'],
+            'prints_included' => $validated['prints_included'] ?: '2 Strip + Soft File',
+            'operational_hours' => $validated['operational_hours'] ?: 'Buka 09.00 — 23.00 WIB',
             'badge' => $validated['badge'] ?? null,
-            'category' => $validated['category'],
-            'is_active' => $request->boolean('is_active', true),
+            'category' => $validated['category'] ?? 'BOOTH',
+            'is_active' => $request->has('is_active') ? $request->boolean('is_active') : $package->is_active,
         ]);
 
         return back()->with('success', "Paket foto {$package->name} berhasil diperbarui.");
@@ -133,6 +141,16 @@ class PackageManagementController extends Controller
         ]);
 
         return back()->with('success', "Layanan tambahan {$addOn->name} berhasil diperbarui.");
+    }
+
+    public function toggleAddOn(AddOn $addOn): RedirectResponse
+    {
+        $addOn->is_active = ! $addOn->is_active;
+        $addOn->save();
+
+        $status = $addOn->is_active ? 'diaktifkan' : 'dinonaktifkan';
+
+        return back()->with('success', "Layanan tambahan {$addOn->name} berhasil {$status}.");
     }
 
     public function destroyAddOn(AddOn $addOn): RedirectResponse

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Booking;
+use App\Models\Package;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\View\View;
@@ -75,27 +76,33 @@ class QueueController extends Controller
             $calledNumber = $inStudio->queue_number;
         }
 
+        // Per-booth waiting counts for the customer-facing widget
+        $waitingQueues = $activeQueues->whereIn('status', ['waiting_verification', 'confirmed', 'checked_in']);
+        $activePackages = Package::where('is_active', true)->get();
+        $boothCounts = [];
+        foreach ($activePackages as $pkg) {
+            $boothCounts[$pkg->name] = $waitingQueues->where('studio_backdrop', $pkg->name)->count();
+        }
+
         return response()->json([
             'today' => $today,
             'in_studio' => $inStudio ? [
                 'queue_number' => $inStudio->queue_number,
-                'customer_name' => $inStudio->user->name,
                 'package_name' => $inStudio->package->name,
                 'backdrop' => $inStudio->studio_backdrop,
                 'called_at' => $inStudio->called_at?->toIso8601String(),
             ] : null,
             'next_queue' => $nextQueue ? [
                 'queue_number' => $nextQueue->queue_number,
-                'customer_name' => $nextQueue->user->name,
                 'package_name' => $nextQueue->package->name,
             ] : null,
             'sound_alert' => $soundAlert,
             'called_number' => $calledNumber,
-            'waiting_count' => $activeQueues->whereIn('status', ['waiting_verification', 'confirmed', 'checked_in'])->count(),
+            'waiting_count' => $waitingQueues->count(),
+            'booth_counts' => $boothCounts,
             'active_queues' => $activeQueues->map(fn ($b) => [
                 'id' => $b->id,
                 'queue_number' => $b->queue_number,
-                'customer_name' => $b->user->name,
                 'status' => $b->status,
                 'status_label' => $b->status_label,
                 'status_badge' => $b->status_badge_class,

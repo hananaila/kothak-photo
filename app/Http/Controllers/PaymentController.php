@@ -58,8 +58,8 @@ class PaymentController extends Controller
             ]);
         });
 
-        return redirect()->route('booking.history')
-            ->with('success', 'Bukti transfer QRIS berhasil diunggah! Kasir KOTHaK Photo akan segera memverifikasi transaksi Anda.');
+        return redirect()->route('booking.ticket', $booking->id)
+            ->with('success', "Pembayaran berhasil dikonfirmasi! Nomor antrean Anda adalah {$booking->queue_number}. Silakan simpan tiket digital ini.");
     }
 
     protected function authorizeBookingAccess(Booking $booking): void

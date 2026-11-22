@@ -28,15 +28,15 @@
 </head>
 <body>
 
-  <div class="no-print" style="margin-bottom: 15px; background: #e0e7ff; padding: 10px; border: 1px solid #1d4ed8; text-align: right;">
-    <button onclick="window.print()" style="padding: 8px 16px; font-weight: bold; cursor: pointer; background: #1d4ed8; color: white; border: none;">
-      🖨️ Cetak / Unduh Dokumen PDF
+  <div class="no-print" style="margin-bottom: 15px; background: #e8eef9; padding: 12px; border: 2px solid #1e3a8a; text-align: right;">
+    <button onclick="window.print()" style="padding: 9px 18px; font-weight: bold; cursor: pointer; background: #1e3a8a; color: white; border: none; font-family: sans-serif; text-transform: uppercase; letter-spacing: 0.05em;">
+      Cetak / Unduh Dokumen PDF
     </button>
   </div>
 
   <!-- KOP SURAT RESMI -->
   <div class="header">
-    <h1>KOTHaK CAFE &amp; PHOTO STUDIO</h1>
+    <h1>KOTHaK PHOTO STUDIO PURBALINGGA</h1>
     <p>Jl. AW Sumarmo No.39, Kembaran Kulon, Kec. Purbalingga, Kabupaten Purbalingga, Jawa Tengah 53319</p>
     <p>Telepon/WhatsApp: +62 813-2674-377 &bull; Website: kothakphoto.id &bull; NMID: ID2026KOTHAKPBG01</p>
   </div>
@@ -57,12 +57,12 @@
       <div class="box-val">{{ $completedCount }} Sesi</div>
     </div>
     <div class="box">
-      <div class="box-title">Total Reservasi</div>
-      <div class="box-val">{{ $totalBookings }} Booking</div>
+      <div class="box-title">Total Antrean</div>
+      <div class="box-val">{{ $totalBookings }} Antrean</div>
     </div>
     <div class="box">
-      <div class="box-title">Rasio Verifikasi Lunas</div>
-      <div class="box-val">{{ $successRate }}%</div>
+      <div class="box-title">Tingkat Kehadiran</div>
+      <div class="box-val">{{ $attendanceRate }}%</div>
     </div>
   </div>
 
@@ -74,10 +74,9 @@
         <th>No. Antrean</th>
         <th>Tanggal &amp; Jam</th>
         <th>Nama Pelanggan</th>
-        <th>Paket Foto</th>
+        <th>Bilik Booth</th>
         <th>Total (IDR)</th>
-        <th>Status Antrean</th>
-        <th>Status Pembayaran</th>
+        <th>Status Sesi</th>
       </tr>
     </thead>
     <tbody>
@@ -88,14 +87,13 @@
         <td style="font-family: monospace; font-weight: bold;">{{ $b->queue_number }}</td>
         <td>{{ \Carbon\Carbon::parse($b->booking_date)->format('d/m/Y H:i') }}</td>
         <td><strong>{{ $b->user?->name ?? 'Guest' }}</strong> ({{ $b->user?->phone_whatsapp ?? '-' }})</td>
-        <td>{{ $b->package?->name ?? '-' }}</td>
+        <td>{{ $b->studio_backdrop ?? '-' }}</td>
         <td style="text-align: right; font-family: monospace;">{{ number_format($b->total_price, 0, ',', '.') }}</td>
         <td>{{ $b->status_label }}</td>
-        <td>{{ $b->payment ? $b->payment->status_label : 'Belum Bayar' }}</td>
       </tr>
       @empty
       <tr>
-        <td colspan="8" style="text-align: center;">Tidak ada transaksi pada periode ini.</td>
+        <td colspan="7" style="text-align: center;">Tidak ada transaksi pada periode ini.</td>
       </tr>
       @endforelse
     </tbody>

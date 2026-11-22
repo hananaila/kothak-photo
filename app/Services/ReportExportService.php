@@ -24,15 +24,50 @@ class ReportExportService
 
         $allBookings = $query->get();
 
-        // 1. Metric Cards
+        // 1. Metric Cards: Perhitungan Akurat Berdasarkan Status Riil Transaksi Pengguna
         $totalBookings = $allBookings->count();
         $completedBookings = $allBookings->where('status', 'completed');
-        $totalRevenue = $allBookings->whereIn('status', ['confirmed', 'checked_in', 'in_studio', 'completed'])->sum('total_price');
-        $todayRevenue = $allBookings->filter(fn ($b) => Carbon::parse($b->booking_date)->isToday() && in_array($b->status, ['confirmed', 'checked_in', 'in_studio', 'completed']))->sum('total_price');
+        $inStudioBookings = $allBookings->where('status', 'in_studio');
+        $waitingBookings = $allBookings->whereIn('status', ['confirmed', 'checked_in', 'waiting_verification']);
+        $noShowBookings = $allBookings->whereIn('status', ['cancelled', 'no_show']);
 
-        $verifiedPaymentsCount = $allBookings->filter(fn ($b) => $b->payment && $b->payment->payment_status === 'verified')->count();
+        // Pendapatan Sah/Terealisasi: HANYA sesi yang telah diselesaikan di kasir (completed)
+        $totalRevenue = $allBookings->where('status', 'completed')->sum('total_price');
+
+        $todayRevenue = $allBookings->filter(function ($b) {
+            return Carbon::parse($b->booking_date)->isToday()
+                && $b->status === 'completed';
+        })->sum('total_price');
+
+        $verifiedPaymentsCount = $allBookings->filter(fn ($b) => $b->payment && in_array($b->payment->payment_status, ['verified', 'completed']))->count();
         $totalPaymentsCount = $allBookings->filter(fn ($b) => $b->payment !== null)->count();
         $successRate = $totalPaymentsCount > 0 ? round(($verifiedPaymentsCount / $totalPaymentsCount) * 100, 1) : 100.0;
+
+        // Attendance & No-Show metrics
+        $noShowCount = $noShowBookings->count();
+        $attendedTotal = $completedBookings->count() + $noShowCount;
+        $attendanceRate = $attendedTotal > 0 ? round(($completedBookings->count() / $attendedTotal) * 100, 1) : 100.0;
+
+        // Booth Popularity (Dinamis dari seluruh paket yang ada di studio)
+        $packages = Package::all();
+        $boothStats = [];
+        foreach ($packages as $pkg) {
+            $boothStats[$pkg->name] = $allBookings->filter(function ($b) use ($pkg) {
+                return $b->package_id === $pkg->id || $b->studio_backdrop === $pkg->name;
+            })->count();
+        }
+
+        $topBoothName = 'Belum ada antrean';
+        $topBoothCount = 0;
+        foreach ($boothStats as $bName => $bCount) {
+            if ($bCount >= $topBoothCount && $bCount > 0) {
+                $topBoothName = $bName;
+                $topBoothCount = $bCount;
+            }
+        }
+        if ($topBoothCount === 0 && $packages->isNotEmpty()) {
+            $topBoothName = $packages->first()->name;
+        }
 
         $avgDuration = $allBookings->avg(fn ($b) => $b->package?->duration ?? 15) ?? 15;
 
@@ -44,7 +79,7 @@ class ReportExportService
             $label = $cursor->format('d M');
             $rev = $allBookings->filter(function ($b) use ($dStr) {
                 return Carbon::parse($b->booking_date)->toDateString() === $dStr
-                    && in_array($b->status, ['confirmed', 'checked_in', 'in_studio', 'completed']);
+                    && $b->status === 'completed';
             })->sum('total_price');
 
             $visits = $allBookings->filter(function ($b) use ($dStr) {
@@ -56,6 +91,7 @@ class ReportExportService
                 'label' => $label,
                 'revenue' => (float) $rev,
                 'visits' => $visits,
+                'is_today' => $cursor->isToday(),
             ];
             $cursor->addDay();
         }
@@ -67,23 +103,52 @@ class ReportExportService
             $dailyChartData = $dailyData;
         }
 
-        // 3. Package Popularity Donut Chart
+        // 3. Package Popularity & Revenue Breakdown (Palet Warna Unik dan Serasi per Booth)
+        $packageColorPalette = [
+            '#E06A55', // Warm Terracotta Coral (Flower Garden / Floral)
+            '#1E3A8A', // Deep Royal Navy Blue (Lift Booth / Modern Box)
+            '#D97706', // Warm Vintage Amber (Vintage Booth / Classic)
+            '#0D9488', // Emerald Teal (Hana Booth / Aesthetic)
+            '#7C3AED', // Soft Royal Violet
+            '#2563EB', // Vivid Cobalt Blue
+            '#EA580C', // Sunset Orange
+        ];
+
         $packageStats = [];
-        $packages = Package::all();
+        $totalRevForPerc = $totalRevenue > 0 ? $totalRevenue : 1;
+        $colorIdx = 0;
+
         foreach ($packages as $pkg) {
-            $count = $allBookings->where('package_id', $pkg->id)->count();
-            $rev = $allBookings->where('package_id', $pkg->id)
-                ->whereIn('status', ['confirmed', 'checked_in', 'in_studio', 'completed'])
+            // Cocokkan pemesanan berdasarkan package_id atau studio_backdrop
+            $matchingBookings = $allBookings->filter(function ($b) use ($pkg) {
+                return $b->package_id === $pkg->id || $b->studio_backdrop === $pkg->name;
+            });
+
+            $count = $matchingBookings->count();
+            $rev = (float) $matchingBookings
+                ->where('status', 'completed')
                 ->sum('total_price');
 
+            $percentage = round(($rev / $totalRevForPerc) * 100, 1);
+            $color = $packageColorPalette[$colorIdx % count($packageColorPalette)];
+            $colorIdx++;
+
             $packageStats[] = [
+                'id' => $pkg->id,
                 'name' => $pkg->name,
+                'category' => $pkg->category,
+                'badge' => $pkg->badge,
+                'price' => (float) $pkg->price,
                 'count' => $count,
-                'revenue' => (float) $rev,
+                'revenue' => $rev,
+                'percentage' => $percentage,
+                'color' => $color,
             ];
         }
 
-        // 4. Busy Hours Analysis (Jam Sibuk 10:00 - 21:00)
+        usort($packageStats, fn ($a, $b) => $b['revenue'] <=> $a['revenue']);
+
+        // 4. Busy Hours Analysis (Berdasarkan Jam Booking Aktual Pengguna)
         $hoursDistribution = [];
         for ($h = 10; $h <= 21; $h++) {
             $hFormatted = sprintf('%02d:00', $h);
@@ -91,12 +156,11 @@ class ReportExportService
         }
 
         foreach ($allBookings as $b) {
-            if ($b->schedule && $b->schedule->start_time) {
-                $slotH = substr($b->schedule->start_time, 0, 2).':00';
-                if (isset($hoursDistribution[$slotH])) {
-                    $hoursDistribution[$slotH]++;
-                } else {
-                    $hoursDistribution[$slotH] = 1;
+            $timeSource = $b->created_at ?? $b->booking_date;
+            if ($timeSource) {
+                $hour = Carbon::parse($timeSource)->format('H').':00';
+                if (isset($hoursDistribution[$hour])) {
+                    $hoursDistribution[$hour]++;
                 }
             }
         }
@@ -109,6 +173,11 @@ class ReportExportService
             'totalRevenue' => $totalRevenue,
             'todayRevenue' => $todayRevenue,
             'successRate' => $successRate,
+            'attendanceRate' => $attendanceRate,
+            'noShowCount' => $noShowCount,
+            'boothStats' => $boothStats,
+            'topBoothName' => $topBoothName,
+            'topBoothCount' => $topBoothCount,
             'avgDuration' => round($avgDuration, 0),
             'dailyChartData' => $dailyChartData,
             'packageStats' => $packageStats,

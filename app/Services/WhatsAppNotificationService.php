@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Booking;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class WhatsAppNotificationService
@@ -24,18 +25,18 @@ class WhatsAppNotificationService
             $total = 'Rp '.number_format($booking->total_price, 0, ',', '.');
 
             $message = "Halo kak *{$user->name}*! 👋\n\n"
-                ."Terima kasih telah melakukan reservasi di *KOTHaK Cafe & Photo Studio Purbalingga*! 📸✨\n\n"
-                ."Berikut rincian pesanan Anda:\n"
+                ."Nomor antrean Anda di *KOTHaK Photo Studio* telah berhasil diambil! 📸✨\n\n"
+                ."Berikut rincian tiket antrean Anda:\n"
                 ."━━━━━━━━━━━━━━━━━━━━━━\n"
                 ."🎫 *No. Antrean*: `{$booking->queue_number}`\n"
-                ."📦 *Paket Foto*: {$package->name}\n"
-                ."📅 *Jadwal*: {$dateFormatted}\n"
-                ."⏰ *Waktu*: {$timeSlot}\n"
-                ."🎨 *Background*: {$booking->studio_backdrop}\n"
+                ."🎨 *Booth Pilihan*: {$booking->studio_backdrop}\n"
+                ."📦 *Sesi Foto*: {$package->name} (2 Strip + Soft File HD)\n"
                 ."💰 *Total Biaya*: {$total}\n"
+                ."💳 *Metode Pembayaran*: Bayar di Tempat (Kasir)\n"
                 ."━━━━━━━━━━━━━━━━━━━━━━\n\n"
-                ."Silakan lakukan pembayaran via *QRIS Statis* di website dan unggah bukti transfer agar diverifikasi kasir.\n\n"
-                .'Pantau antrean secara live di: '.route('packages.index')."\n\n"
+                ."Silakan cek & simpan tiket digital Anda di:\n"
+                .route('booking.ticket', $booking->id)."\n\n"
+                ."Pembayaran dilakukan di meja kasir saat giliran nomor antrean Anda dipanggil.\n\n"
                 ."Salam hangat,\n*Tim KOTHaK Photo Purbalingga*";
 
             return $this->dispatchMessage($user->phone_whatsapp, $message, $booking);
@@ -143,8 +144,29 @@ class WhatsAppNotificationService
             return false;
         }
 
-        // Log message for auditing & local demo environment
-        Log::info("WhatsApp Outbox: To {$phone} => \n{$message}");
+        // Normalize phone number (08xxx -> 628xxx)
+        $target = preg_replace('/[^0-9]/', '', $phone);
+        if (str_starts_with($target, '0')) {
+            $target = '62'.substr($target, 1);
+        }
+
+        // 1. If FONNTE_TOKEN is set in .env, automatically send live WhatsApp message to customer phone
+        $fonnteToken = env('FONNTE_TOKEN');
+        if (! empty($fonnteToken)) {
+            try {
+                Http::withHeaders([
+                    'Authorization' => $fonnteToken,
+                ])->timeout(8)->post('https://api.fonnte.com/send', [
+                    'target' => $target,
+                    'message' => $message,
+                ]);
+            } catch (\Throwable $e) {
+                Log::warning('Fonnte WhatsApp dispatch exception: '.$e->getMessage());
+            }
+        }
+
+        // 2. Always log for local auditing & demo tracking
+        Log::info("WhatsApp Outbox: To {$target} => \n{$message}");
 
         if ($booking) {
             $booking->updateQuietly(['whatsapp_sent_at' => Carbon::now()]);

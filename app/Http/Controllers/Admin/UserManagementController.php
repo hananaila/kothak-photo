@@ -39,7 +39,7 @@ class UserManagementController extends Controller
             'name' => ['required', 'string', 'max:120'],
             'email' => ['required', 'email', 'max:150', 'unique:users,email'],
             'phone_whatsapp' => ['nullable', 'string', 'max:25'],
-            'role' => ['required', 'in:customer,cashier,admin'],
+            'role' => ['required', 'in:cashier,admin'],
             'password' => ['required', 'string', 'min:6'],
             'is_active' => ['nullable', 'boolean'],
         ]);
@@ -53,7 +53,7 @@ class UserManagementController extends Controller
             'is_active' => $request->boolean('is_active', true),
         ]);
 
-        return back()->with('success', "Pengguna {$validated['name']} ({$validated['role']}) berhasil ditambahkan.");
+        return back()->with('success', "Akun staf {$validated['name']} ({$validated['role']}) berhasil ditambahkan.");
     }
 
     public function update(Request $request, User $user): RedirectResponse

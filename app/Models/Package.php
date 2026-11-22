@@ -17,6 +17,8 @@ class Package extends Model
         'duration',
         'max_participants',
         'price',
+        'prints_included',
+        'operational_hours',
         'badge',
         'category',
         'is_active',
